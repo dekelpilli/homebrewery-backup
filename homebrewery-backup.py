@@ -5,6 +5,7 @@ import html2text
 from tqdm import tqdm
 import textwrap
 import codecs
+import datetime
 
 def getPages(user):
     response = urllib.request.urlopen('http://homebrewery.naturalcrit.com/user/' + user)
@@ -35,7 +36,7 @@ def getSource(page):
     return md
 
 def writeMarkdownFiles(user, pages):
-    directory = os.getcwd()+"/"+user+"-brews/"
+    directory = os.getcwd()+"/backups/"+user+datetime.datetime.now().strftime('-%d.%m.%y_%H-%M-%S/')
     if not os.path.exists(directory):
         os.makedirs(directory)
     for page in tqdm(pages):
