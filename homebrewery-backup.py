@@ -31,14 +31,18 @@ def getSource(page):
     md = html2text.html2text(html)[1:-3]
     
     
-    md = textwrap.dedent(md)#.strip()
+    md = textwrap.dedent(md).strip()
     
     return md
 
 def writeMarkdownFiles(user, pages):
-    directory = os.getcwd()+"/backups/"+user+datetime.datetime.now().strftime('-%d.%m.%y_%H-%M-%S/')
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    baseDir = os.getcwd()+"/backups/"+user+datetime.datetime.now().strftime('-%d.%m.%y_%H-%M-%S')
+    directory = baseDir + "/"
+    copy = 1
+    while os.path.exists(directory):
+        directory = baseDir + "(Copy " + str(copy) + ")/"
+        copy += 1
+    os.makedirs(directory)
     for page in tqdm(pages):
         source = getSource(page)
         f = codecs.open(directory+page+".md", 'w', 'utf-8')
