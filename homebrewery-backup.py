@@ -4,6 +4,7 @@ import os
 import html2text
 from tqdm import tqdm
 import textwrap
+import codecs
 
 def getPages(user):
     response = urllib.request.urlopen('http://homebrewery.naturalcrit.com/user/' + user)
@@ -29,7 +30,7 @@ def getSource(page):
     md = html2text.html2text(html)[1:-3]
     
     
-    md = textwrap.dedent(md).strip()
+    md = textwrap.dedent(md)#.strip()
     
     return md
 
@@ -39,8 +40,8 @@ def writeMarkdownFiles(user, pages):
         os.makedirs(directory)
     for page in tqdm(pages):
         source = getSource(page)
-        f = open(directory+page+".md", 'w')
-        f.write(source.encode('ascii', 'ignore').decode('ascii')) #this will delete any unrecognisable characters
+        f = codecs.open(directory+page+".md", 'w', 'utf-8')
+        f.write(source) 
         f.close()
     
 if __name__ == "__main__":
