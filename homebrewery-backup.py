@@ -27,7 +27,7 @@ class Brew:
     def __str__(self):
         return "Name: " + str(self.name) + "\nID: " + str(self.shareId) + "\n-------------------"
 
-    def getDescription(self):
+    def getSummary(self):
         return self.name + " - " + self.shareId 
 
 def getPages(user):
@@ -38,49 +38,41 @@ def getPages(user):
     if "No Brews." in html:
         return pages
 
-    htmlSplit = html.split('"brewItem" data-reactid="')[1:]
+    htmlSplit = html.split('"brewItem" data-reactid="')[1:] #separate each brew's html text into one list item
     for brew in htmlSplit:
-        reactId = int(brew.split('"')[0])
-        name = brew.split('<h2 data-reactid="'+str(reactId+1)+'">')[1].split('</h2>')[0]
-        shareId = brew.split("/share/")[1:][0].split('"')[0]
+        reactId = int(brew.split('"',1)[0]) #internal html react id, only useful for constructing the next string
+        name = brew.split('<h2 data-reactid="'+str(reactId+1)+'">',1)[1].split('</h2>')[0] #gets the brew name from the user page
+        shareId = brew.split("/share/")[1:][0].split('"',1)[0] #get share id for current brew
 
         brewItem = Brew(name, shareId)
         pages.append(brewItem)
-
-    for p in pages:
-        print(p)
-    
-##    htmlSplit = html.split("/share/")[1:]
-##    for p in htmlSplit:
-##        pages.append(p.split('"')[0])
-
     return pages
 
 def getSource(brew):
-    response = urllib.request.urlopen('http://homebrewery.naturalcrit.com/source/' + brew.getShareId())
+    response = urllib.request.urlopen('http://homebrewery.naturalcrit.com/source/' + brew.getShareId()) 
     charset = response.headers.get_content_charset()
     html = response.read()
     html = html.decode(charset, errors='ignore')
     
     html2text.BODY_WIDTH = 0
-    md = html2text.html2text(html)[1:-3]
+    md = html2text.html2text(html)[1:-3] #remove whitespace
     
     
-    md = textwrap.dedent(md).strip()
+    md = textwrap.dedent(md).strip() #remove indentation
     
     return md
 
 def writeMarkdownFiles(user, brews):
-    baseDir = os.getcwd()+"/backups/"+user+datetime.datetime.now().strftime('-%d.%m.%y_%H-%M-%S')
+    baseDir = os.getcwd()+"/backups/"+user+datetime.datetime.now().strftime('-%d.%m.%y_%H-%M-%S') #folder name based on user name and date
     directory = baseDir + "/"
     copy = 1
-    while os.path.exists(directory):
-        directory = baseDir + "(Copy " + str(copy) + ")/"
+    while os.path.exists(directory): #make 100% sure folder doesn't overwrite current files
+        directory = baseDir + "(Copy " + str(copy) + ")/" 
         copy += 1
     os.makedirs(directory)
     for brew in tqdm(brews):
         source = getSource(brew)
-        f = codecs.open(directory+brew.getDescription()+".md", 'w', 'utf-8')
+        f = codecs.open(directory+brew.getSummary()+".md", 'w', 'utf-8')
         f.write(source) 
         f.close()
     
