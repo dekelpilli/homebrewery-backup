@@ -68,7 +68,7 @@ def get_source(brew):
 
 def write_markdown_files(user, brews):
     # folder name based on user name and date
-    base_dir = os.getcwd() + "/backups/" + user + datetime.now().strftime('-%d.%m.%y_%H-%M-%S')
+    base_dir = os.getcwd() + "/backups/" + user + datetime.now().strftime('-%y.%m.%d_%H-%M-%S')
     directory = base_dir + "/"
     copy = 1
     while os.path.exists(directory):  # make 100% sure folder doesn't overwrite current files
