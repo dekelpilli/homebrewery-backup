@@ -36,21 +36,18 @@ def get_pages(user):
     response = urllib.request.urlopen('http://homebrewery.naturalcrit.com/user/' + user)
     html = response.read().decode('utf-8')
 
-    pages = []
-    if "No Brews." in html:
-        return pages
-
+    brews = []
     # separate each brew's html text into one list item
     html_split = html.split('"brewItem">')[1:]
-    for brew in html_split:
+    for brew_preview in html_split:
         # gets the brew name from the user page
-        name = brew.split("<h2>")[1].split("</h2>")[0]
+        name = brew_preview.split("<h2>")[1].split("</h2>")[0]
         # get share id for current brew
-        share_id = brew.split("/share/")[1:][0].split('"', 1)[0]
+        share_id = brew_preview.split("/share/")[1:][0].split('"', 1)[0]
 
         brew_item = Brew(name, share_id)
-        pages.append(brew_item)
-    return pages
+        brews.append(brew_item)
+    return brews
 
 
 def get_source(brew):
@@ -67,6 +64,8 @@ def get_source(brew):
 
 
 def write_markdown_files(user, brews):
+    if len(brews) == 0:
+        return
     # folder name based on user name and date
     base_dir = os.getcwd() + "/backups/" + user + datetime.now().strftime('-%y.%m.%d_%H-%M-%S')
     directory = base_dir + "/"

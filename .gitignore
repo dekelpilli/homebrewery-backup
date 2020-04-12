@@ -1,4 +1,4 @@
 *.bat
 backups/
 .idea
-
+.*swp
